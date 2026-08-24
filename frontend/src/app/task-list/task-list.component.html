@@ -1,0 +1,37 @@
+<div class="task-form">
+  <input
+    type="text"
+    placeholder="Task title"
+    [(ngModel)]="newTask.title"
+    name="title"
+  />
+  <input
+    type="text"
+    placeholder="Description (optional)"
+    [(ngModel)]="newTask.description"
+    name="description"
+  />
+  <button (click)="addTask()">Add Task</button>
+</div>
+
+<p class="error" *ngIf="errorMsg">{{ errorMsg }}</p>
+
+<div class="task-list">
+  <div class="task-card" *ngFor="let task of tasks">
+    <div class="task-info">
+      <h3>{{ task.title }}</h3>
+      <p *ngIf="task.description">{{ task.description }}</p>
+      <span class="badge" [ngClass]="task.status">{{ task.status }}</span>
+    </div>
+    <div class="task-actions">
+      <select [ngModel]="task.status" (ngModelChange)="updateStatus(task, $event)">
+        <option value="pending">pending</option>
+        <option value="in-progress">in-progress</option>
+        <option value="completed">completed</option>
+      </select>
+      <button class="delete-btn" (click)="deleteTask(task._id)">Delete</button>
+    </div>
+  </div>
+
+  <p *ngIf="tasks.length === 0">Kaही task nahiyet. Varti navin task add kara.</p>
+</div>
