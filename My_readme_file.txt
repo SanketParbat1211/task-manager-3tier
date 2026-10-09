@@ -190,6 +190,257 @@ echo "deb [ arch=amd64 ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/7
 ##########################################################################################
 
 
+evry time if u stop your instance then restart the instance the new public ip created so after that u need to change following file and add public ip there
+
+
+##)  if backend doent connect then do follow:
+     
+      -> nano ~/task-manager-3tier/frontend/src/environments/environment.ts 
+
+     see code -- 
+
+               export const environment = {
+                    production: false,
+                      apiUrl: 'http://localhost:5000/api'    ---chnge this localhost
+                };
+
+     changes -- change localhost into your ubutntu public ip
+
+ ##)  after changing file do
+
+    ctrl S --->  ctrl X
+
+
+***********************  1st Step  *************************************
+
+1)  Ubuntu update 
+
+         -> sudo apt update
+         -> sudo apt upgrade -y
+
+
+2)  Docker Package Install
+         
+         -> sudo apt install -y ca-certificates curl
+
+
+3)  Create Docker GPG key directory
+ 
+         -> sudo install -m 0755 -d /etc/apt/keyrings
+
+
+4)  Download Docker GPG key  
+         
+         -> sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+         
+         -> sudo chmod a+r /etc/apt/keyrings/docker.asc 
+
+
+5)  Add Docker repository  
+
+         -> echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+
+6)  Repository update
+
+         -> sudo apt update
+
+7)  Docker Install 
+
+         -> sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+
+8)  Docker Version 
+   
+         -> docker --version
+
+
+9)  Docker Compose version
+
+         -> docker compose version
+
+
+10)  Docker service start
+
+         -> sudo systemctl start docker
+
+
+11)  Docker automatically start after EC2 restart
+
+         ->  sudo systemctl enable docker
+
+       ** Status check  
+
+         -> sudo systemctl status docker   (Active and running)
+
+           ~q  --exit
+
+12)  Docker use without Sudo
+
+         -> sudo usermod -aG docker $USER
+         -> newgrp docker
+
+
+13)  check the containers
+
+         -> docker ps
+
+14)  Docker Test 
+
+         -> docker run hello-world
+
+         *** output  -->   docker run hello-world
+
+
+
+***********************  2st Step  *************************************
+
+1)  if you see the medium tier EC2 instance memory full then check the memory
+          -> df -h
+
+2)  Remove unwanted files
+          -> rm -rf backend/node_modules
+          -> rm -rf frontend/node_modules
+          -> docker system prune -a -f
+          -> sudo apt clean
+          -> sudo apt autoremove -y
+
+3)  After using above commands still getting error then 
+
+      ++ check where exactly memory full                                 
+           -> du -sh ~/task-manager-3tier/* 2>/dev/null                ------  Show the size of each item in the project folder
+           -> du -sh /var/lib/docker 2>/dev/null                       ------  Check how much disk space Docker is using.
+           -> du -sh /var/lib/containerd 2>/dev/null                   ------  Check how much disk space Docker is using.
+           -> sudo du -sh /* 2>/dev/null | sort -rh | head -15         ------  This displays a list of the largest directories in the entire system
+
+
+
+***********************  3st Step  *************************************
+
+1)  If storage memory full then Increase EC2 Instance EBS volume size 8GB to 20 GB
+
+2)  Once done increase size then follow command in terminal
+            -> lsblk                           ------  Show the disk partitions and their sizes.
+            -> sudo growpart /dev/xvda 1       ------  Resize partition 1 on disk /dev/xvda to use the available space.
+            -> sudo resize2fs /dev/root        ------  Resize the filesystem to match the expanded partition size.
+            -> df -h                           ------  Verify if the disk resize was done properly.
+
+3)  After successfully Added space then rerun Docker file and check the output
+            -> cd ~/task-manager-3tier
+            -> docker compose up --build
+         
+     --- after you can copy public ip and check on browser using ( ex. http://13.201.100.207:4200/ )
+
+
+
+
+##########################################################################################
+*********************************  Jenkins ****************************************
+##########################################################################################
+
+evry time if u stop your instance then restart the instance the new public ip created so after that u need to change following file and add public ip there
+
+
+##)  if backend doent connect then do follow:
+     
+      -> nano ~/task-manager-3tier/frontend/src/environments/environment.ts 
+
+     see code -- 
+
+               export const environment = {
+                    production: false,
+                      apiUrl: 'http://localhost:5000/api'    ---chnge this localhost
+                };
+
+     changes -- change localhost into your ubutntu public ip
+
+
+
+
+***********************  1st Step  *************************************
+
+
+b42a7a9260cb46c892503ba4c8daf322  ----jenkin password while installing 
+  
+username --sanketlp
+pass -- sanketlp@123
+email -- sanketparbat8@gmail.com
+
+
+
+***********************  2nd Step  *************************************
+
+
+1) System update
+     -> sudo apt update
+
+2) Java install
+     -> sudo apt install -y fontconfig openjdk-17-jre
+     -> java -version
+
+3) MAke folder for Jenkins keyring
+     -> sudo mkdir -p /etc/apt/keyrings
+
+4) Download Valid Jenkins signing key
+     -> sudo wget -O /etc/apt/keyrings/jenkins-keyring.asc https://pkg.jenkins.io/debian/jenkins.io-2026.key
+
+5) Add Jenkins repository
+     -> echo "deb [signed-by=/etc/apt/keyrings/jenkins-keyring.asc]" https://pkg.jenkins.io/debian binary/ | sudo tee /etc/apt/sources.list.d/jenkins.list > /dev/null
+
+6) Update Package List Again 
+     -> sudo apt update
+
+7) Run Jenkins Manually
+     -> sudo -u jenkins java -jar /usr/share/java/jenkins.war --httpPort=8080
+
+8) choose browser , put ip add and then use port jenkin for dashboard
+       example -- 
+
+
+
+
+#####################################################################################################################
+*******  if stop instance and after u want to relogin to project then do folloing steps ******************************
+#####################################################################################################################
+
+
+1) If relogin then take public IP from EC2 Instance
+
+2) use terminal and login via ssh  
+       -> ssh -i "C:\Users\LENOVO\OneDrive\aws-keys\awskey.pem" ubuntu@65.2.142.227
+
+3) Then change in environment.ts file
+       -> nano ~/task-manager-3tier/frontend/src/environments/environment.ts 
+
+     see code -- 
+
+               export const environment = {
+                    production: false,
+                      apiUrl: 'http://localhost:5000/api'    ---chnge this localhost
+                };
+
+     changes -- change localhost into your ubutntu public ip
+
+4) then go to project folder and run Docker
+       -> cd ~/task-manager-3tier
+       -> docker compose up --build -d
+       -> docker ps  
+
+5) go to browser and check the app is running or not
+        example -- http://13.201.100.207:4200/
+
+6) Check Jenkins Service is status start or not 
+       -> sudo systemctl status Jenkins
+
+7) 
+
+
+
+
+
 
 
 
